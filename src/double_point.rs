@@ -102,6 +102,7 @@ pub fn valid_palindrome(s: String) -> bool {
       let l = vc.next();
       let r = vc.next_back();
       if l.is_some() && r.is_some() && l != r {
+         // 去掉一個字符，再次判斷。abcbfa -> bcbf -> bcb[f] | [b]cbf
          rs = is_palindrome(&kk[0..kk.len() - 1]) || is_palindrome(&kk[1..]);
          break;
       }
@@ -111,6 +112,7 @@ pub fn valid_palindrome(s: String) -> bool {
       let mut e = a.len() - 1;
       let m = a.as_bytes();
       while s < e {
+         // 兩個字符不相等，說明不是回文字符串
          if m[s] != m[e] {
             return false;
          }
