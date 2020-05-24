@@ -1,8 +1,10 @@
 // `use` trait to get functionality
 
-/// https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/description/
+/// https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/description/
 /// 1. 有序数组的 Two Sum
 /// 167. Two Sum II - Input array is sorted (Easy)
+/// 0 ms
+/// 2.2 MB
 #[allow(dead_code)]
 pub fn two_sum(numbers: Vec<i32>, target: i32) -> Vec<i32> {
    assert!(!numbers.is_empty());
@@ -26,11 +28,13 @@ pub fn two_sum(numbers: Vec<i32>, target: i32) -> Vec<i32> {
    result
 }
 
-/// https://leetcode-cn.com/problems/sum-of-square-numbers/description/
+/// https://leetcode.com/problems/sum-of-square-numbers/description/
 /// 2. 两数平方和
 /// 在元素为 0~target 的有序数组中查找两个数，使得这两个数的平方和为 target，
 /// 如果能找到，则返回 true，表示 target 是两个整数的平方和。
 /// 633. Sum of Square Numbers (Easy)
+/// 0 ms
+/// 2 MB
 #[allow(dead_code)]
 pub fn judge_square_sum(target: i32) -> bool {
    let mut s = 0;
@@ -49,9 +53,11 @@ pub fn judge_square_sum(target: i32) -> bool {
    false
 }
 
-/// https://leetcode-cn.com/problems/reverse-vowels-of-a-string/description/
+/// https://leetcode.com/problems/reverse-vowels-of-a-string/description/
 /// 3. 反转字符串中的元音字符
 /// 345. Reverse Vowels of a String (Easy)
+/// 4 ms
+/// 2.5 MB
 #[allow(dead_code)]
 pub fn reverse_vowels(s: String) -> String {
    if s.is_empty() {
@@ -86,9 +92,11 @@ pub fn reverse_vowels(s: String) -> String {
    return String::from_utf8(ss).unwrap();
 }
 
-/// https://leetcode-cn.com/problems/valid-palindrome-ii/description/
+/// https://leetcode.com/problems/valid-palindrome-ii/description/
 /// 4. 回文字符串
 /// 680. Valid Palindrome II (Easy)
+/// 4 ms
+/// 2.2 MB
 #[allow(dead_code)]
 pub fn valid_palindrome(s: String) -> bool {
    let mut vc = s.chars();
@@ -124,9 +132,11 @@ pub fn valid_palindrome(s: String) -> bool {
    return rs;
 }
 
-/// https://leetcode-cn.com/problems/merge-sorted-array/description/
+/// https://leetcode.com/problems/merge-sorted-array/description/
 /// 5. 归并两个有序数组
 /// 88. Merge Sorted Array (Easy)
+/// 0 ms
+/// 2 MB
 #[allow(dead_code)]
 pub fn merge(nums1: &mut Vec<i32>, m: i32, nums2: &mut Vec<i32>, n: i32) {
    // num1最後一個元素的索引
@@ -162,7 +172,7 @@ pub fn merge(nums1: &mut Vec<i32>, m: i32, nums2: &mut Vec<i32>, n: i32) {
    println!("{:?}", nums1);
 }
 
-/// https://leetcode-cn.com/problems/linked-list-cycle/description/
+/// https://leetcode.com/problems/linked-list-cycle/description/
 /// 6. 判断链表是否存在环
 /// 141. Linked List Cycle (Easy)
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -233,9 +243,11 @@ pub fn has_cycle(head: List<i32>, i: i32) -> bool {
    return false;
 }
 
-/// https://leetcode-cn.com/problems/longest-word-in-dictionary-through-deleting/description/
+/// https://leetcode.com/problems/longest-word-in-dictionary-through-deleting/description/
 /// 7. 最长子序列
 /// 524. Longest Word in Dictionary through Deleting (Medium)
+/// 12 ms
+/// 2.8 MB
 #[allow(dead_code)]
 pub fn find_longest_word(s: String, d: Vec<String>) -> String {
    use std::cmp::Ordering;
