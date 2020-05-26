@@ -217,9 +217,8 @@ pub fn is_subtree_with_root(
         && is_subtree_with_root(n1_l, n2_l)
         && is_subtree_with_root(n1_r, n2_r);
     }
-    (Some(_), None) => return false,
-    (None, Some(_)) => return false,
     (None, None) => return true,
+    _ => return false,
   }
 }
 
@@ -265,6 +264,89 @@ mod tests {
   use std::cell::RefCell;
   use std::rc::Rc;
 
+  pub fn build_tree(array: Vec<Option<i32>>) -> Option<Rc<RefCell<TreeNode>>> {
+    let tree: Vec<_> = array
+      .iter()
+      .map(|x| {
+        if x.is_none() {
+          None
+        } else {
+          Some(Rc::new(RefCell::new(TreeNode::new(x.unwrap()))))
+        }
+      })
+      .collect();
+
+    let mut iter = tree.iter();
+    let _head = iter.next();
+
+    let mut i = 1;
+    let mut node = tree[0].as_ref();
+    let mut next = 1;
+
+    loop {
+      if i == tree.len() {
+        break;
+      }
+      println!("i: {}, next: {}", i, next);
+
+      if node.is_none() {
+        // 移動到下一個節點
+        node = tree[i].as_ref();
+        i = i + 1;
+        continue;
+      }
+      if next >= tree.len() {
+        println!(
+          "set {} left={} i={} next={}",
+          node.unwrap().borrow().val,
+          "None",
+          i,
+          next
+        );
+        println!(
+          "set {} right={} i={} next={}",
+          node.unwrap().borrow().val,
+          "None",
+          i,
+          next
+        );
+        node.unwrap().borrow_mut().left = None;
+        node.unwrap().borrow_mut().right = None;
+      } else {
+        println!(
+          "set {} left={} i={} next={}",
+          node.unwrap().borrow().val,
+          if tree[next].clone().is_some() {
+            tree[next].clone().unwrap().borrow().val
+          } else {
+            -999
+          },
+          i,
+          next
+        );
+        println!(
+          "set {} right={} i={} next={}",
+          node.unwrap().borrow().val,
+          if tree[next + 1].clone().is_some() {
+            tree[next + 1].clone().unwrap().borrow().val
+          } else {
+            -999
+          },
+          i,
+          next
+        );
+        node.unwrap().borrow_mut().left = tree[next].clone();
+        node.unwrap().borrow_mut().right = tree[next + 1].clone();
+      }
+
+      node = tree[i].as_ref();
+      i = i + 1;
+      next = next + 2;
+    }
+
+    return tree[0].clone();
+  }
+
   #[test]
   pub fn test_max_depth() {
     //    3
@@ -272,18 +354,9 @@ mod tests {
     //  9    20
     //      /  \
     //     15   7
-    let n1 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let n2 = Rc::new(RefCell::new(TreeNode::new(9)));
-    let n3 = Rc::new(RefCell::new(TreeNode::new(20)));
-    let n4 = Rc::new(RefCell::new(TreeNode::new(15)));
-    let n5 = Rc::new(RefCell::new(TreeNode::new(7)));
-
-    n1.borrow_mut().left = Some(n2.clone());
-    n1.borrow_mut().right = Some(n3.clone());
-    n3.borrow_mut().left = Some(n4.clone());
-    n3.borrow_mut().right = Some(n5.clone());
-
-    assert_eq!(super::max_depth(Some(n1)), 3);
+    let tree = vec![Some(3), Some(9), Some(20), None, None, Some(15), Some(7)];
+    let t1 = build_tree(tree);
+    assert_eq!(super::max_depth(t1), 3);
   }
 
   #[test]
@@ -293,18 +366,9 @@ mod tests {
     //  9    20
     //      /  \
     //     15   7
-    let n1 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let n2 = Rc::new(RefCell::new(TreeNode::new(9)));
-    let n3 = Rc::new(RefCell::new(TreeNode::new(20)));
-    let n4 = Rc::new(RefCell::new(TreeNode::new(15)));
-    let n5 = Rc::new(RefCell::new(TreeNode::new(7)));
-
-    n1.borrow_mut().left = Some(n2.clone());
-    n1.borrow_mut().right = Some(n3.clone());
-    n3.borrow_mut().left = Some(n4.clone());
-    n3.borrow_mut().right = Some(n5.clone());
-
-    assert_eq!(super::is_balanced(Some(n1)), true);
+    let tree = vec![Some(3), Some(9), Some(20), None, None, Some(15), Some(7)];
+    let t1 = build_tree(tree);
+    assert_eq!(super::is_balanced(t1), true);
   }
 
   #[test]
@@ -314,18 +378,9 @@ mod tests {
     //   2    3
     //  / \
     // 4   5
-    let n1 = Rc::new(RefCell::new(TreeNode::new(1)));
-    let n2 = Rc::new(RefCell::new(TreeNode::new(2)));
-    let n3 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let n4 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let n5 = Rc::new(RefCell::new(TreeNode::new(5)));
-
-    n1.borrow_mut().left = Some(n2.clone());
-    n1.borrow_mut().right = Some(n3.clone());
-    n2.borrow_mut().left = Some(n4.clone());
-    n2.borrow_mut().right = Some(n5.clone());
-
-    assert_eq!(super::diameter_of_binary_tree(Some(n1)), 3);
+    let tree = vec![Some(1), Some(2), Some(3), Some(4), Some(5)];
+    let t1 = build_tree(tree);
+    assert_eq!(super::diameter_of_binary_tree(t1), 3);
   }
 
   #[test]
@@ -335,42 +390,34 @@ mod tests {
     //   2     7
     //  / \   / \
     // 1   3 6   9
-    let n1 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let n2 = Rc::new(RefCell::new(TreeNode::new(2)));
-    let n3 = Rc::new(RefCell::new(TreeNode::new(7)));
-    let n4 = Rc::new(RefCell::new(TreeNode::new(1)));
-    let n5 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let n6 = Rc::new(RefCell::new(TreeNode::new(6)));
-    let n7 = Rc::new(RefCell::new(TreeNode::new(9)));
-
-    n1.borrow_mut().left = Some(n2.clone());
-    n1.borrow_mut().right = Some(n3.clone());
-    n2.borrow_mut().left = Some(n4.clone());
-    n2.borrow_mut().right = Some(n5.clone());
-    n3.borrow_mut().left = Some(n6.clone());
-    n3.borrow_mut().right = Some(n7.clone());
+    let t1 = vec![
+      Some(4),
+      Some(2),
+      Some(7),
+      Some(1),
+      Some(3),
+      Some(6),
+      Some(9),
+    ];
+    let t11 = build_tree(t1);
 
     //      4
     //    /   \
     //   7     2
     //  / \   / \
     // 9   6 3   1
-    let m1 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let m2 = Rc::new(RefCell::new(TreeNode::new(2)));
-    let m3 = Rc::new(RefCell::new(TreeNode::new(7)));
-    let m4 = Rc::new(RefCell::new(TreeNode::new(1)));
-    let m5 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let m6 = Rc::new(RefCell::new(TreeNode::new(6)));
-    let m7 = Rc::new(RefCell::new(TreeNode::new(9)));
+    let t2 = vec![
+      Some(4),
+      Some(7),
+      Some(2),
+      Some(9),
+      Some(6),
+      Some(3),
+      Some(1),
+    ];
+    let t22 = build_tree(t2);
 
-    m1.borrow_mut().left = Some(m3.clone());
-    m1.borrow_mut().right = Some(m2.clone());
-    m3.borrow_mut().left = Some(m7.clone());
-    m3.borrow_mut().right = Some(m6.clone());
-    m2.borrow_mut().left = Some(m5.clone());
-    m2.borrow_mut().right = Some(m4.clone());
-
-    assert_eq!(super::invert_tree(Some(n1)), Some(m1));
+    assert_eq!(super::invert_tree(t11), t22);
   }
 
   #[test]
@@ -380,50 +427,25 @@ mod tests {
     //   3     2
     //  /
     // 5
-    let n1 = Rc::new(RefCell::new(TreeNode::new(1)));
-    let n2 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let n3 = Rc::new(RefCell::new(TreeNode::new(2)));
-    let n4 = Rc::new(RefCell::new(TreeNode::new(5)));
-
-    n1.borrow_mut().left = Some(n2.clone());
-    n1.borrow_mut().right = Some(n3.clone());
-    n2.borrow_mut().left = Some(n4.clone());
-
+    let t1 = vec![Some(1), Some(3), Some(2), Some(5), None];
+    let t11 = build_tree(t1);
     //      2
     //    /   \
     //   1     3
     //    \      \
     //     4      7
-    let m1 = Rc::new(RefCell::new(TreeNode::new(2)));
-    let m2 = Rc::new(RefCell::new(TreeNode::new(1)));
-    let m3 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let m4 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let m5 = Rc::new(RefCell::new(TreeNode::new(7)));
-
-    m1.borrow_mut().left = Some(m2.clone());
-    m1.borrow_mut().right = Some(m3.clone());
-    m2.borrow_mut().right = Some(m4.clone());
-    m3.borrow_mut().right = Some(m5.clone());
+    let t2 = vec![Some(2), Some(1), Some(3), None, Some(4), None, Some(7)];
+    let t22 = build_tree(t2);
 
     //      3
     //    /   \
     //   4     5
     //  / \     \
     // 5   4     7
-    let k1 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let k2 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let k3 = Rc::new(RefCell::new(TreeNode::new(5)));
-    let k4 = Rc::new(RefCell::new(TreeNode::new(5)));
-    let k5 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let k6 = Rc::new(RefCell::new(TreeNode::new(7)));
+    let t3 = vec![Some(3), Some(4), Some(5), Some(5), Some(4), None, Some(7)];
+    let t33 = build_tree(t3);
 
-    k1.borrow_mut().left = Some(k2.clone());
-    k1.borrow_mut().right = Some(k3.clone());
-    k2.borrow_mut().left = Some(k4.clone());
-    k2.borrow_mut().right = Some(k5.clone());
-    k3.borrow_mut().right = Some(k6.clone());
-
-    assert_eq!(super::merge_trees(Some(n1), Some(m1)), Some(k1));
+    assert_eq!(super::merge_trees(t11, t22), t33);
   }
 
   #[test]
@@ -435,26 +457,58 @@ mod tests {
     //    11  13  4
     //   /  \      \
     //  7    2      1
-    let n1 = Rc::new(RefCell::new(TreeNode::new(5)));
-    let n2 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let n3 = Rc::new(RefCell::new(TreeNode::new(8)));
-    let n4 = Rc::new(RefCell::new(TreeNode::new(11)));
-    let n5 = Rc::new(RefCell::new(TreeNode::new(13)));
-    let n6 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let n7 = Rc::new(RefCell::new(TreeNode::new(7)));
-    let n8 = Rc::new(RefCell::new(TreeNode::new(2)));
-    let n9 = Rc::new(RefCell::new(TreeNode::new(1)));
-
-    n1.borrow_mut().left = Some(n2.clone());
-    n1.borrow_mut().right = Some(n3.clone());
-    n2.borrow_mut().left = Some(n4.clone());
-    n3.borrow_mut().left = Some(n5.clone());
-    n3.borrow_mut().right = Some(n6.clone());
-    n4.borrow_mut().left = Some(n7.clone());
-    n4.borrow_mut().right = Some(n8.clone());
-    n6.borrow_mut().right = Some(n9.clone());
+    let t1 = vec![
+      Some(5),
+      Some(4),
+      Some(8),
+      Some(11),
+      None,
+      Some(13),
+      Some(4),
+      Some(7),
+      Some(2),
+      None,
+      None,
+      None,
+      Some(1),
+    ];
+    let t11 = build_tree(t1);
     // [5,4,11,2]
-    assert_eq!(super::has_path_sum(Some(n1), 22), true);
+    assert_eq!(super::has_path_sum(t11.clone(), 22), true);
+
+    //        5
+    //       / \
+    //      4   8
+    //     /   / \
+    //    11  13  4
+    //   /  \      \
+    //  7    2      1
+    //        \      \
+    //         1      6
+    let t1 = vec![
+      Some(5),
+      Some(4),
+      Some(8),
+      Some(11),
+      None,
+      Some(13),
+      Some(4),
+      Some(7),
+      Some(2),
+      None,
+      None,
+      None,
+      Some(1),
+      None,
+      None,
+      None,
+      Some(1),
+      None,
+      Some(6)
+    ];
+    let t11 = build_tree(t1);
+    // [5,8,4,1,6]
+    assert_eq!(super::has_path_sum(t11.clone(), 24), true);
   }
 
   #[test]
@@ -466,30 +520,26 @@ mod tests {
     //   3   2   11
     //  / \   \
     // 3  -2   1
-    let n1 = Rc::new(RefCell::new(TreeNode::new(10)));
-    let n2 = Rc::new(RefCell::new(TreeNode::new(5)));
-    let n3 = Rc::new(RefCell::new(TreeNode::new(-3)));
-    let n4 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let n5 = Rc::new(RefCell::new(TreeNode::new(2)));
-    let n6 = Rc::new(RefCell::new(TreeNode::new(11)));
-    let n7 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let n8 = Rc::new(RefCell::new(TreeNode::new(-2)));
-    let n9 = Rc::new(RefCell::new(TreeNode::new(1)));
-
-    n1.borrow_mut().left = Some(n2.clone());
-    n1.borrow_mut().right = Some(n3.clone());
-    n2.borrow_mut().left = Some(n4.clone());
-    n2.borrow_mut().right = Some(n5.clone());
-    n3.borrow_mut().right = Some(n6.clone());
-    n4.borrow_mut().left = Some(n7.clone());
-    n4.borrow_mut().right = Some(n8.clone());
-    n5.borrow_mut().right = Some(n9.clone());
+    let t1 = vec![
+      Some(10),
+      Some(5),
+      Some(-3),
+      Some(3),
+      Some(2),
+      None,
+      Some(11),
+      Some(3),
+      Some(-2),
+      None,
+      Some(1),
+    ];
+    let t11 = build_tree(t1);
     // 存在3條路徑等於8
     // 路径不一定以 root 开头，也不一定以 leaf 结尾，但是必须连续。
     // 1.  5 -> 3
     // 2.  5 -> 2 -> 1
     // 3. -3 -> 11
-    assert_eq!(super::path_sum(Some(n1), 8), 3);
+    assert_eq!(super::path_sum(t11, 8), 3);
   }
 
   #[test]
@@ -499,23 +549,13 @@ mod tests {
     //    4   5       1   2
     //   / \
     //  1   2
-    let n1 = Rc::new(RefCell::new(TreeNode::new(3)));
-    let n2 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let n3 = Rc::new(RefCell::new(TreeNode::new(5)));
-    let n4 = Rc::new(RefCell::new(TreeNode::new(1)));
-    let n5 = Rc::new(RefCell::new(TreeNode::new(2)));
-    n1.borrow_mut().left = Some(n2.clone());
-    n1.borrow_mut().right = Some(n3.clone());
-    n2.borrow_mut().left = Some(n4.clone());
-    n2.borrow_mut().right = Some(n5.clone());
+    let t1 = vec![Some(3), Some(4), Some(5), Some(1), Some(2)];
+    let t11 = build_tree(t1);
 
-    let nr1 = Rc::new(RefCell::new(TreeNode::new(4)));
-    let nr2 = Rc::new(RefCell::new(TreeNode::new(1)));
-    let nr3 = Rc::new(RefCell::new(TreeNode::new(2)));
-    nr1.borrow_mut().left = Some(nr2.clone());
-    nr1.borrow_mut().right = Some(nr3.clone());
-    // 應該返回true
-    assert_eq!(super::is_subtree(Some(n1.clone()), Some(nr1.clone())), true);
+    let t2 = vec![Some(4), Some(1), Some(2)];
+    let t22 = build_tree(t2);
+    //
+    assert_eq!(super::is_subtree(t11, t22.clone()), true);
 
     //      3          4
     //     / \        / \
@@ -524,9 +564,21 @@ mod tests {
     //  1   2
     //     /
     //   0
-    let n6 = Rc::new(RefCell::new(TreeNode::new(0)));
-    n5.borrow_mut().left = Some(n6.clone());
-    // 應該返回false
-    assert_eq!(super::is_subtree(Some(n1), Some(nr1)), false);
+    let t1 = vec![
+      Some(3),
+      Some(4),
+      Some(5),
+      Some(1),
+      Some(2),
+      None,
+      None,
+      None,
+      None,
+      Some(0),
+      None,
+    ];
+    let t11 = build_tree(t1);
+    //
+    assert_eq!(super::is_subtree(t11, t22), false);
   }
 }
