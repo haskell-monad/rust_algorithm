@@ -239,25 +239,27 @@ pub fn is_subtree(s: Option<Rc<RefCell<TreeNode>>>, t: Option<Rc<RefCell<TreeNod
 /// 101. Symmetric Tree (Easy)
 /// 0 ms, faster than 100.00%
 /// 2 MB, less than 100.00%
-pub fn is_symmetric_tree(node1: Option<Rc<RefCell<TreeNode>>>, node2: Option<Rc<RefCell<TreeNode>>>) -> bool {
-
-    match (node1, node2) {
-      (Some(left), Some(right))     => {
-        let l = left.borrow().val;
-        let r = right.borrow().val;
-        if l != r {
-          return false;
-        }
-        let l_l = left.borrow().left.clone();
-        let l_r = left.borrow().right.clone();
-        
-        let r_l = right.borrow().left.clone();
-        let r_r = right.borrow().right.clone();
-        return is_symmetric_tree(l_l, r_r) && is_symmetric_tree(l_r, r_l);
+pub fn is_symmetric_tree(
+  node1: Option<Rc<RefCell<TreeNode>>>,
+  node2: Option<Rc<RefCell<TreeNode>>>,
+) -> bool {
+  match (node1, node2) {
+    (Some(left), Some(right)) => {
+      let l = left.borrow().val;
+      let r = right.borrow().val;
+      if l != r {
+        return false;
       }
-      (None, None)      => return true,
-      _                 => return false
+      let l_l = left.borrow().left.clone();
+      let l_r = left.borrow().right.clone();
+
+      let r_l = right.borrow().left.clone();
+      let r_r = right.borrow().right.clone();
+      return is_symmetric_tree(l_l, r_r) && is_symmetric_tree(l_r, r_l);
     }
+    (None, None) => return true,
+    _ => return false,
+  }
 }
 
 #[allow(dead_code)]
@@ -266,32 +268,55 @@ pub fn is_symmetric(root: Option<Rc<RefCell<TreeNode>>>) -> bool {
     let l = node.borrow().left.clone();
     let r = node.borrow().right.clone();
     return is_symmetric_tree(l, r);
-  }     
-  true 
+  }
+  true
 }
 
 /// https://leetcode.com/problems/minimum-depth-of-binary-tree/description/
 /// 10. 最小路径
 /// 111. Minimum Depth of Binary Tree (Easy)
 /// 树的根节点到叶子节点的最小路径长度
-/// 0 ms, faster than 100.00% 
+/// 0 ms, faster than 100.00%
 /// 2.8 MB, less than 100.00%
 #[allow(dead_code)]
 pub fn min_depth(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
-      if let Some(node) = root {
-        let l = min_depth(node.borrow().left.clone());
-        let r = min_depth(node.borrow().right.clone());
-        if l == 0 || r == 0 {
-          return l + r + 1;
-        }
-        return l.min(r) + 1;
-      }
-      0
+  if let Some(node) = root {
+    let l = min_depth(node.borrow().left.clone());
+    let r = min_depth(node.borrow().right.clone());
+    if l == 0 || r == 0 {
+      return l + r + 1;
+    }
+    return l.min(r) + 1;
+  }
+  0
 }
 
 /// https://leetcode.com/problems/sum-of-left-leaves/description/
 /// 11. 统计左叶子节点的和
 /// 404. Sum of Left Leaves (Easy)
+/// 0 ms, faster than 100.00%
+/// 2.3 MB, less than 100.00%
+pub fn is_leaves(root: Option<Rc<RefCell<TreeNode>>>) -> bool {
+  if let Some(node) = root {
+    let l = node.borrow().left.clone();
+    let r = node.borrow().right.clone();
+    // 说明: 叶子节点是指没有子节点的节点。
+    return l.is_none() && r.is_none();
+  }
+  false
+}
+#[allow(dead_code)]
+pub fn sum_of_left_leaves(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+  if let Some(node) = root {
+    let l = node.borrow().left.clone();
+    let r = node.borrow().right.clone();
+    if is_leaves(l.clone()) {
+      return l.unwrap().borrow().val + sum_of_left_leaves(r);
+    }
+    return sum_of_left_leaves(l) + sum_of_left_leaves(r);
+  }
+  0
+}
 
 /// https://leetcode.com/problems/longest-univalue-path/
 /// 12. 相同节点值的最大路径长度
@@ -551,7 +576,7 @@ mod tests {
       None,
       Some(1),
       None,
-      Some(6)
+      Some(6),
     ];
     let t11 = build_tree(t1);
     // [5,8,4,1,6]
@@ -636,7 +661,15 @@ mod tests {
     //    2     2
     //   / \   / \
     //  3   4 4   3
-    let t1 = vec![Some(1), Some(2), Some(2), Some(3), Some(4), Some(4), Some(3)];
+    let t1 = vec![
+      Some(1),
+      Some(2),
+      Some(2),
+      Some(3),
+      Some(4),
+      Some(4),
+      Some(3),
+    ];
     let t11 = build_tree(t1);
     assert_eq!(super::is_symmetric(t11), true);
 
@@ -660,5 +693,14 @@ mod tests {
     let t1 = vec![Some(3), Some(9), Some(20), None, None, Some(15), Some(7)];
     let t11 = build_tree(t1);
     assert_eq!(super::min_depth(t11), 2);
+  }
+
+  #[test]
+  pub fn test_sum_of_left_leaves() {
+    let t1 = vec![Some(3), Some(9), Some(20), None, None, Some(15), Some(7)];
+
+    let t11 = build_tree(t1);
+
+    assert_eq!(super::sum_of_left_leaves(t11), 24);
   }
 }
