@@ -321,6 +321,38 @@ pub fn sum_of_left_leaves(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
 /// https://leetcode.com/problems/longest-univalue-path/
 /// 12. 相同节点值的最大路径长度
 /// 687. Longest Univalue Path (Easy)
+//     1
+//    / \
+//   4   5
+//  / \   \
+// 4   4   5
+pub fn recursion_tree(path: &mut i32 , root: &Option<Rc<RefCell<TreeNode>>>) -> i32{
+  use std::cmp::max;
+  if let Some(node) = root {
+    let lv = recursion_tree(path, &node.borrow().left.clone());
+    let rv = recursion_tree(path, &node.borrow().right.clone());
+    let l_path = if node.borrow().left.is_some() && node.borrow().left.clone().unwrap().borrow().val == node.borrow().val {
+      lv + 1
+    } else{
+      0
+    };
+    let r_path = if node.borrow().right.is_some() && node.borrow().right.clone().unwrap().borrow().val == node.borrow().val {
+      rv + 1
+    }else{
+      0
+    };
+    println!("node: {}, l_path: {}, r_path: {}", &node.borrow().val, l_path, r_path);
+    *path = (*path).max(l_path + r_path);
+    return max(l_path, r_path);
+  }
+  0
+}
+#[allow(dead_code)]
+pub fn longest_univalue_path(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+  let mut max = 0i32;
+  recursion_tree(&mut max, &root); 
+  max
+}
 
 /// https://leetcode.com/problems/house-robber-iii/description/
 /// 13. 间隔遍历
@@ -697,10 +729,30 @@ mod tests {
 
   #[test]
   pub fn test_sum_of_left_leaves() {
+    //      3
+    //     / \
+    //    9  20
+    //      /  \
+    //     15   7
     let t1 = vec![Some(3), Some(9), Some(20), None, None, Some(15), Some(7)];
 
     let t11 = build_tree(t1);
 
     assert_eq!(super::sum_of_left_leaves(t11), 24);
+  }
+
+  #[test]
+  pub fn test_longest_univalue_path(){
+    //      1
+    //     / \
+    //    4   5
+    //   / \   \
+    //  4   4   5
+    let t1 = vec![Some(1), Some(4), Some(5), Some(4), Some(4), None, Some(5)];
+
+    let t11 = build_tree(t1);
+
+    assert_eq!(super::longest_univalue_path(t11), 2);
+
   }
 }
