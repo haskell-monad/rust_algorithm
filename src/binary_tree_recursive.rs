@@ -321,27 +321,31 @@ pub fn sum_of_left_leaves(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
 /// https://leetcode.com/problems/longest-univalue-path/
 /// 12. 相同节点值的最大路径长度
 /// 687. Longest Univalue Path (Easy)
-//     1
-//    / \
-//   4   5
-//  / \   \
-// 4   4   5
-pub fn recursion_tree(path: &mut i32 , root: &Option<Rc<RefCell<TreeNode>>>) -> i32{
+pub fn recursion_tree(path: &mut i32, root: &Option<Rc<RefCell<TreeNode>>>) -> i32 {
   use std::cmp::max;
   if let Some(node) = root {
     let lv = recursion_tree(path, &node.borrow().left.clone());
     let rv = recursion_tree(path, &node.borrow().right.clone());
-    let l_path = if node.borrow().left.is_some() && node.borrow().left.clone().unwrap().borrow().val == node.borrow().val {
+    let l_path = if node.borrow().left.is_some()
+      && node.borrow().left.clone().unwrap().borrow().val == node.borrow().val
+    {
       lv + 1
-    } else{
+    } else {
       0
     };
-    let r_path = if node.borrow().right.is_some() && node.borrow().right.clone().unwrap().borrow().val == node.borrow().val {
+    let r_path = if node.borrow().right.is_some()
+      && node.borrow().right.clone().unwrap().borrow().val == node.borrow().val
+    {
       rv + 1
-    }else{
+    } else {
       0
     };
-    println!("node: {}, l_path: {}, r_path: {}", &node.borrow().val, l_path, r_path);
+    println!(
+      "node: {}, l_path: {}, r_path: {}",
+      &node.borrow().val,
+      l_path,
+      r_path
+    );
     *path = (*path).max(l_path + r_path);
     return max(l_path, r_path);
   }
@@ -350,17 +354,66 @@ pub fn recursion_tree(path: &mut i32 , root: &Option<Rc<RefCell<TreeNode>>>) -> 
 #[allow(dead_code)]
 pub fn longest_univalue_path(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
   let mut max = 0i32;
-  recursion_tree(&mut max, &root); 
+  recursion_tree(&mut max, &root);
   max
 }
 
 /// https://leetcode.com/problems/house-robber-iii/description/
 /// 13. 间隔遍历
 /// 337. House Robber III (Medium)
+/// https://www.reddit.com/r/rust/comments/i02oxr/beginner_ask_for_help/
+pub fn rob_old(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+  use std::cmp::max;
+  if let Some(node) = root {
+    let mut v1 = node.borrow().val;
+    let l_exist = node.borrow().left.is_some();
+    let r_exist = node.borrow().right.is_some();
+    if l_exist {
+      let l1 = node.borrow().left.clone();
+      let l2 = node.borrow().left.clone();
+      v1 +=
+        rob_old(l1.unwrap().borrow().left.clone()) + rob_old(l2.unwrap().borrow().right.clone());
+    }
+    if r_exist {
+      let r1 = node.borrow().right.clone();
+      let r2 = node.borrow().right.clone();
+      v1 +=
+        rob_old(r1.unwrap().borrow().left.clone()) + rob_old(r2.unwrap().borrow().right.clone());
+    }
+    let v2 = rob_old(node.borrow().left.clone()) + rob_old(node.borrow().right.clone());
+    return max(v1, v2);
+  }
+  0
+}
+pub fn rob_ref(root: &Option<Rc<RefCell<TreeNode>>>) -> i32 {
+  use std::cmp::max;
+  if let Some(node) = root {
+    let node = node.borrow();
+    let mut v1 = node.val;
+    if let Some(left) = &node.left {
+      v1 += rob_ref(&left.borrow().left) + rob_ref(&left.borrow().right);
+    }
+    if let Some(right) = &node.right {
+      v1 += rob_ref(&right.borrow().left) + rob_ref(&right.borrow().right);
+    }
+    let v2 = rob_ref(&node.left) + rob_ref(&node.right);
+    return max(v1, v2);
+  }
+  0
+}
+pub fn rob(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+  return rob_ref(&root);
+}
 
 /// https://leetcode.com/problems/second-minimum-node-in-a-binary-tree/description/
 /// 14. 找出二叉树中第二小的节点
 /// 671. Second Minimum Node In a Binary Tree (Easy)
+pub fn find_second_minimum_value(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+  if let Some(node) = root {
+    
+  }
+  0
+}
 
 #[cfg(test)]
 mod tests {
@@ -447,7 +500,6 @@ mod tests {
       i = i + 1;
       next = next + 2;
     }
-
     return tree[0].clone();
   }
 
@@ -742,7 +794,7 @@ mod tests {
   }
 
   #[test]
-  pub fn test_longest_univalue_path(){
+  pub fn test_longest_univalue_path() {
     //      1
     //     / \
     //    4   5
@@ -753,6 +805,30 @@ mod tests {
     let t11 = build_tree(t1);
 
     assert_eq!(super::longest_univalue_path(t11), 2);
+  }
 
+  #[test]
+  pub fn test_rob() {
+    //    3
+    //   / \
+    //  2   3
+    //   \   \
+    //    3   1
+    let t1 = vec![Some(3), Some(2), Some(3), None, Some(3), None, Some(1)];
+    let t11 = build_tree(t1);
+    assert_eq!(super::rob_old(t11.clone()), 7);
+    assert_eq!(super::rob(t11), 7);
+  }
+
+  #[test]
+  pub fn test_find_second_minimum_value() {
+    //    2
+    //   / \
+    //  2   5
+    //     / \
+    //    5   7
+    let t1 = vec![Some(2), Some(2), Some(5), None, None, Some(5), Some(7)];
+    let tree = build_tree(t1);
+    assert_eq!(super::find_second_minimum_value(tree), 5);
   }
 }
