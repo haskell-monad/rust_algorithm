@@ -408,11 +408,44 @@ pub fn rob(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
 /// https://leetcode.com/problems/second-minimum-node-in-a-binary-tree/description/
 /// 14. 找出二叉树中第二小的节点
 /// 671. Second Minimum Node In a Binary Tree (Easy)
-pub fn find_second_minimum_value(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+/// Your runtime beats 100 % of rust submissions
+/// Your memory usage beats 100 % of rust submissions (2.1 MB)
+pub fn find_second_minimum_value_ref(root: &Option<Rc<RefCell<TreeNode>>>) -> i32 {
+  use std::cmp::min;
   if let Some(node) = root {
-    
+    let node = node.borrow();
+    let v = node.val;
+    let mut lv = -1;
+    let mut rv = -1;
+    if let Some(left) = &node.left {
+      lv = left.borrow().val;
+    }
+    if let Some(right) = &node.right {
+      rv = right.borrow().val;
+    }
+    if lv == -1 && rv == -1 {
+      return -1;
+    }
+    if lv == v {
+      lv = find_second_minimum_value_ref(&node.left)
+    }
+    if rv == v {
+      rv = find_second_minimum_value_ref(&node.right)
+    }
+    if lv != -1 && rv != -1 {
+      return min(lv, rv);
+    }
+    if lv != -1 {
+      return lv;
+    }
+    if rv != -1 {
+      return rv;
+    }
   }
-  0
+  -1
+}
+pub fn find_second_minimum_value(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+  return find_second_minimum_value_ref(&root);
 }
 
 #[cfg(test)]
@@ -830,5 +863,11 @@ mod tests {
     let t1 = vec![Some(2), Some(2), Some(5), None, None, Some(5), Some(7)];
     let tree = build_tree(t1);
     assert_eq!(super::find_second_minimum_value(tree), 5);
+    //    2
+    //   / \
+    //  2   2
+    let t2 = vec![Some(2), Some(2), Some(2)];
+    let tree2 = build_tree(t2);
+    assert_eq!(super::find_second_minimum_value(tree2), -1);
   }
 }
