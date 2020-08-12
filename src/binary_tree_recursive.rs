@@ -362,6 +362,7 @@ pub fn longest_univalue_path(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
 /// 13. 间隔遍历
 /// 337. House Robber III (Medium)
 /// https://www.reddit.com/r/rust/comments/i02oxr/beginner_ask_for_help/
+#[allow(dead_code)]
 pub fn rob_old(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
   use std::cmp::max;
   if let Some(node) = root {
@@ -385,6 +386,7 @@ pub fn rob_old(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
   }
   0
 }
+#[allow(dead_code)]
 pub fn rob_ref(root: &Option<Rc<RefCell<TreeNode>>>) -> i32 {
   use std::cmp::max;
   if let Some(node) = root {
@@ -401,6 +403,7 @@ pub fn rob_ref(root: &Option<Rc<RefCell<TreeNode>>>) -> i32 {
   }
   0
 }
+#[allow(dead_code)]
 pub fn rob(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
   return rob_ref(&root);
 }
@@ -410,6 +413,7 @@ pub fn rob(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
 /// 671. Second Minimum Node In a Binary Tree (Easy)
 /// Your runtime beats 100 % of rust submissions
 /// Your memory usage beats 100 % of rust submissions (2.1 MB)
+#[allow(dead_code)]
 pub fn find_second_minimum_value_ref(root: &Option<Rc<RefCell<TreeNode>>>) -> i32 {
   use std::cmp::min;
   if let Some(node) = root {
@@ -444,6 +448,7 @@ pub fn find_second_minimum_value_ref(root: &Option<Rc<RefCell<TreeNode>>>) -> i3
   }
   -1
 }
+#[allow(dead_code)]
 pub fn find_second_minimum_value(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
   return find_second_minimum_value_ref(&root);
 }
